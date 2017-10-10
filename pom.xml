@@ -331,10 +331,6 @@
     </repositories>
 
     <pluginRepositories>
-        <pluginRepository>
-            <id>nexus</id>
-            <url>http://idea.intuit.net/nexus/content/groups/public/</url>
-        </pluginRepository>
     </pluginRepositories>
 
     <scm>
@@ -352,9 +348,7 @@
 				<testngFile>testng.xml</testngFile>
 				<includeGroups>smoke,functional,mint,load,concurrency</includeGroups>
 				<excludeGroups>todo,dontRun</excludeGroups>
-				<mailTo>basavaraj_m@intuit.com</mailTo>
-				<mailTo1>none@intuit.com</mailTo1>
-				<mailTo2>none@intuit.com</mailTo2>
+				<mailTo>basavaraj1985@gmail.com</mailTo>
 				<logLink>${BUILD_URL}artifact/Reports/testRunLog.html</logLink>
 				<proxyEnabled>true</proxyEnabled>
 				<config_metadata_source_type>url</config_metadata_source_type>
@@ -371,9 +365,6 @@
 				<testngFile>testng.xml</testngFile>
 				<includeGroups>smoke,functional</includeGroups>
 				<excludeGroups>todo,dontRun,load,concurrency</excludeGroups>
-				<mailTo>none@intuit.com</mailTo>
-				<mailTo1>none@intuit.com</mailTo1>
-				<mailTo2>none@intuit.com</mailTo2>
 				<BUILD_NUMBER>100000</BUILD_NUMBER>
 				<proxyEnabled>false</proxyEnabled>
 				<logLink>Reports/testRunLog.html</logLink>

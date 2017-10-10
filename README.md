@@ -25,7 +25,7 @@ library with advanced features as failure based reporting, red delta. These feat
 	```
 	Please note that if you are using JIRA auto bug create on test failure feature, the order of listeners in testng.xml matters. Put the SmartReporter at the end.
 
--	If you want to tweak the report format, you could do so. Take [this template](https://github.intuit.com/idea/Dolphin/blob/develop/resources/report.vm "Template") and modify as per your needs
+-	If you want to tweak the report format, you could do so. Take [this template](https://github.com/DolphinNG/blob/master/resources/report.vm "Template") and modify as per your needs
 	and then provide the path to the template as
 	```
 		-Dsmart.report.template=path/to/your/templatefile/template.vm
@@ -36,11 +36,11 @@ library with advanced features as failure based reporting, red delta. These feat
 		-Dbuglink.config=jiraclient.properties
 	```
 	Providing buglink.config is optional, default properties will be taken if not provided. If you want to change the jira connection related settings,
-	[use this file](https://github.intuit.com/idea/Dolphin/blob/develop/resources/jiraclient.properties).
+	[use this file](https://github.com/DolphinNG/blob/master/resources/jiraclient.properties).
 
 -	If you want to create bugs automatically for test failures, use ```bug.auto.create=true``` either in jiraclient.properties or runtime property setting.
     Your JIRA project might have different mandatory fields, custom fields. It is important to make sure that the bug creation request has proper body.
-    If default does not work, then please take [this file](https://github.intuit.com/idea/Dolphin/blob/develop/resources/jiracreateTemplate.vm) and edit
+    If default does not work, then please take [this file](https://github.com/DolphinNG/blob/master/resources/jiracreateTemplate.vm) and edit
     according to your needs. And then provide this filepath as system property:
 	```
 	-Dbug.create.body=resources/jiracreateTemplate.vm

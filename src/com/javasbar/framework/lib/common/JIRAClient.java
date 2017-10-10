@@ -46,7 +46,7 @@ public class JIRAClient
      */
     private static final String FIELDS_TO_FILTER = "id,key,status,resolution,summary,priority,customfield_10302";
     /**
-     * ex: jira.intuit.com
+     * ex: jira.xyz.com
      */
     public static String DEFECT_MGMT_HOST = "bug.management.host";
 
@@ -728,28 +728,8 @@ public class JIRAClient
     {
         JIRAClient jiraClient = new JIRAClient("resources/jiraclient.properties");
         String bugId = jiraClient.createJiraTicket("test summary", "test description\n multi line", null);
-//        LOG.info("Bug raised " + jiraTicket);
-//        LOG.info(jiraClient.getBugsBySearchQueryRA("description~some bug").toString());
-//
-//    System.err.println("==============================test================================================");
-//    URL myURL = new URL("https://jira.intuit.com/rest/api/latest/search?jql=");
-//    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("qypprdproxy01.ie.intuit.net", 80 ));
-//    HttpURLConnection myURLConnection = (HttpURLConnection)myURL.openConnection(proxy );
-//    myURLConnection.setRequestProperty ( "Authorization", "Basic aWRlYV9hdXRvbWF0aW9uOnBhc3N3b3Jk" );
-//    myURLConnection.setRequestMethod("GET");
-//    myURLConnection.setRequestProperty("Content-Language", "en-US");
-//    myURLConnection.setUseCaches(false);
-//    myURLConnection.setDoInput(true);
-//    myURLConnection.setDoOutput(true);
-//
-//    myURLConnection.connect();
-//    InputStream content = (InputStream)  myURLConnection.getContent();
-//    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-//    String line = null;
-//    while ( ( line = reader.readLine() ) != null )
-//    {
-//      LOG.info(line);
-//    }
+        jiraClient.addCommentToIssue(bugId, "Bug created today!");
+        jiraClient.attachFileToIssue(bugId, "/path/to/file");
         System.err.println("================================test==============================================");
     }
 }
