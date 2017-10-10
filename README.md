@@ -11,8 +11,6 @@ library with advanced features as failure based reporting, red delta. These feat
 		<artifactId>DolphinNG</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</dependency>
-	...
-
 	```
 
 -	Include Reporters in your testng:
@@ -58,10 +56,10 @@ library with advanced features as failure based reporting, red delta. These feat
     bug.attachments=Reports/report.html,target/surefire-reports/emailable-report.html,logs/att.log
     #Prefix in the summary of the bug auto created
     summary.prefix=[Automation]
-    projectKey=IDFKABINI
+    projectKey=JIRAPROJECTKEY
     severity=10314
     impact=Medium
-    version=KABINI_0.53.0_SNAPSHOT
+    version=PROJECT_VERSION_IN_JIRA
     environment=Production
 
     ```

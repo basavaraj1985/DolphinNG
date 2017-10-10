@@ -95,7 +95,7 @@ public class JIRAClient
                     "    {\n" +
                     "      \"name\": \"Bug\"\n" +
                     "    },\n" +
-                    "    \"components\": [{\"name\": \"AGENT-TOOLS/KABINI\" }],\n" +
+                    "    \"components\": [{\"name\": \"$bug.component\" }],\n" +
                     "    \"customfield_10302\": { \"id\": \"$bug.severity\" }   ,\n" +
                     "    \"customfield_10207\": [{ \"value\": \"$bug.environment\" }],\n" +
                     "    \"customfield_10502\": { \"value\": \"$bug.impact\" },\n" +
@@ -166,45 +166,6 @@ public class JIRAClient
         return props;
     }
 
-    public static void main(String[] args) throws IOException
-    {
-        JIRAClient jiraClient = new JIRAClient("resources/jiraclient.properties");
-//        jiraClient.addCommentToIssue("IDFKABINI-1418", "This is a sample comment!");
-        String hello = ": {} 1000 Differences b/w kapila and kabini Account events! Realmid = # Diff is ~~~~> name Expected:" +
-                " qureshiad@hotmail.com's Company      got: car accessories  expected # but found #";
-        LOG.info("~~~~> " + hello);
-        hello = hello.replaceAll("[^a-zA-Z0-9\\s]", " ").replaceAll("\\s+", " ").trim();
-        LOG.info("~~~~> " + hello);
-        hello = jiraClient.removeStopWordsFrom(hello, "(?i)InActive,(?i)Active,(?i)Terminated,[*.]cancelEffectiveDate," +
-                "[*.]itemDetailstatus,[*.]nextChargeDate,[*.]subscriptionStatus,[*.]itemSku,none,found,(?i)Expected,[0-9]+,(?i)RealmId,(\\s.\\s)|(\\s.$),(\\s.\\s)|(\\s.$),(\\s..\\s)|(\\s..$)");
-        LOG.info("~~~~> " + hello);
-
-
-//        LOG.info("Bug raised " + jiraTicket);
-//        LOG.info(jiraClient.getBugsBySearchQueryRA("description~kabini").toString());
-//
-//    System.err.println("==============================test================================================");
-//    URL myURL = new URL("https://jira.intuit.com/rest/api/latest/search?jql=");
-//    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("qypprdproxy01.ie.intuit.net", 80 ));
-//    HttpURLConnection myURLConnection = (HttpURLConnection)myURL.openConnection(proxy );
-//    myURLConnection.setRequestProperty ( "Authorization", "Basic aWRlYV9hdXRvbWF0aW9uOnBhc3N3b3Jk" );
-//    myURLConnection.setRequestMethod("GET");
-//    myURLConnection.setRequestProperty("Content-Language", "en-US");
-//    myURLConnection.setUseCaches(false);
-//    myURLConnection.setDoInput(true);
-//    myURLConnection.setDoOutput(true);
-//
-//    myURLConnection.connect();
-//    InputStream content = (InputStream)  myURLConnection.getContent();
-//    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-//    String line = null;
-//    while ( ( line = reader.readLine() ) != null )
-//    {
-//      LOG.info(line);
-//    }
-        System.err.println("================================test==============================================");
-    }
-
     private void initializeClient(Properties props)
     {
         if (null == props || props.size() == 0)
@@ -232,6 +193,167 @@ public class JIRAClient
         velocityEngine.init();
         velocityEngine.setProperty("input.encoding", "UTF-8");
         velocityEngine.setProperty("output.encoding", "UTF-8");
+    }
+
+    private String removeStopWordsFrom(String summary, String stopWordsList)
+    {
+        if (null == stopWordsList || stopWordsList.length() < 1)
+        {
+            return summary;
+        }
+        LOG.info("Stop words to be removed : " + stopWordsList + "\nFrom input: " + summary);
+        StringTokenizer stopWords = new StringTokenizer(stopWordsList, ",");
+        while (stopWords.hasMoreTokens())
+        {
+            String stopWord = stopWords.nextToken();
+            summary = summary.replaceAll(stopWord, " ").replaceAll("\\s+", " ").trim();
+        }
+        LOG.info("Output after stopwords removal: " + summary);
+        return summary;
+    }
+
+    private String truncateAfterStopWords(String summary, String truncateStopWords)
+    {
+        if (null == truncateStopWords || truncateStopWords.trim().length() < 1)
+        {
+            return summary;
+        }
+        LOG.info("Truncate after words: " + truncateStopWords + "\nFrom input: " + summary);
+        StringTokenizer stopWords = new StringTokenizer(truncateStopWords, ",");
+        while (stopWords.hasMoreTokens())
+        {
+            String stopWord = stopWords.nextToken();
+            int end = summary.indexOf(stopWord);
+            if (end > 0)
+            {
+                summary = summary.substring(0, end);
+            }
+        }
+        return summary;
+    }
+
+    private String attachFilesToIssue(String jiraId)
+    {
+        String attachments = System.getProperty(BUG_ATTACHMENTS, configuration.getProperty(BUG_ATTACHMENTS));
+        StringBuilder attachedFiles = new StringBuilder();
+        if (null != attachments)
+        {
+            StringTokenizer tokenizer = new StringTokenizer(attachments, ",");
+            while (tokenizer.hasMoreTokens())
+            {
+                String attach = tokenizer.nextToken();
+                try
+                {
+                    if (attachFileToIssue(jiraId, attach))
+                    {
+                        LOG.info("File " + attach + " attached to jira " + jiraId + " successfully!");
+                        attachedFiles.append(attach).append(",");
+                    }
+                } catch (Exception e)
+                {
+                    System.err.println("Error while attaching file " + attach + " : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+        return attachedFiles.toString();
+    }
+
+    /**
+     * @param summary
+     * @param description
+     * @param payloadTemplateFile
+     * @param overrideBugFields
+     * @return
+     */
+    private String preparePayload(String summary, String description,
+                                  String payloadTemplateFile, Map<String, Object> overrideBugFields)
+    {
+        Map<String, Object> bugMap = new HashMap<>();
+        bugMap.put("summary", configuration.getProperty(BUG_SUMMARY_PREFIX,
+                "[Automation Filed Bug]") + summary);
+        description = prepareBugDescriptionForBugCreation(description);
+        bugMap.put("description", description);
+        Set<Map.Entry<Object, Object>> entries = configuration.entrySet();
+        entries.forEach(each ->
+        {
+            bugMap.put(each.getKey().toString(), each.getValue().toString());
+        });
+        if (null != overrideBugFields && overrideBugFields.size() > 0)
+        {
+            bugMap.putAll(overrideBugFields);
+        }
+        // Override bugMap with system level/runtime configurations
+        bugMap.keySet().forEach(each ->
+        {
+            if (null != System.getProperty(each.toString()))
+            {
+                bugMap.put(each.toString(), System.getProperty(each.toString()));
+            }
+            LOG.info(each + "=" + bugMap.get(each.toString()));
+        });
+
+        boolean templateFileFound = new File(payloadTemplateFile).exists();
+        LOG.info("Bug body template found? = " + templateFileFound);
+        if (!templateFileFound)
+        {
+            System.err.println("Bug body template was not found, using default template, writing it to : " +
+                    payloadTemplateFile);
+            try
+            {
+                IOUtil.writeFile(payloadTemplateFile, defaultBugCreateTemplate, false);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        Template template = velocityEngine.getTemplate(payloadTemplateFile, "UTF-8");
+        VelocityContext context = new VelocityContext();
+        context.put("bug", bugMap);
+        StringWriter writer = new StringWriter();
+        template.merge(context, writer);
+        String payload = writer.toString();
+        LOG.info("Create Issue Input data : " + payload);
+        return payload;
+    }
+
+    /**
+     * Prepares the description of bug body. By adding build url, a nice header, a note and
+     * excaptes html tags, json tags.
+     *
+     * @param description
+     * @return
+     */
+    private String prepareBugDescriptionForBugCreation(String description)
+    {
+        description = "*[Automation failed tests]*\n" +
+                "||Testcase failing|| Parameters||\n" +
+                description + "\n" +
+                System.getProperty(AUTO_CREATE_ADDITIONAL_DETAILS,
+                        configuration.getProperty(AUTO_CREATE_ADDITIONAL_DETAILS, "")) + "\n" +
+                "Build url: " + buildUrl;
+        description = description + "\n\n\n" + "Note: This bug is created automatically by Dolphin." +
+                " Please do not edit summary line of the bug.";
+        description = StringEscapeUtils.escapeHtml3(description);
+        description = StringEscapeUtils.escapeHtml4(description);
+        description = JSONObject.escape(description);
+        return description;
+    }
+
+    /*
+     *
+     */
+    private String getField(Object document, String fieldJsonPath)
+    {
+        String result = null;
+        try
+        {
+            result = JsonPath.read(document, fieldJsonPath);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**
@@ -370,6 +492,12 @@ public class JIRAClient
         return bug;
     }
 
+    /**
+     *
+     * @param jqlQuery
+     * @return
+     * @throws IOException
+     */
     public Bug getBugsBySearchQueryRA(String jqlQuery) throws IOException
     {
 //        jqlQuery =  URLEncoder.encode(jqlQuery + " " + theAlwaysFilter,"UTF-8");
@@ -437,6 +565,38 @@ public class JIRAClient
     }
 
     /**
+     * Attaches given file to the jira ticket provided.
+     *
+     * @param jiraTicket   - jira ticket id
+     * @param fileToAttach - file path, that needs to be attached
+     * @throws MalformedURLException
+     */
+    public boolean attachFileToIssue(String jiraTicket, String fileToAttach) throws MalformedURLException
+    {
+        URL request = new URL("https://" + configuration.getProperty(DEFECT_MGMT_HOST) +
+                configuration.getProperty(BUG_API) + "/" + jiraTicket + "/attachments");
+        File file = new File(fileToAttach);
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+        RequestSpecification given = RestAssured.given();
+        Header header2 = new Header("X-Atlassian-Token", "nocheck");
+        given = given.header(authenticationHeader).and().header(header2);
+        if (null != configuration.getProperty(PROXY_HOST))
+        {
+            given = given.proxy(configuration.getProperty(PROXY_HOST), Integer.parseInt(configuration.getProperty(PROXY_PORT)));
+            LOG.info("Using proxy server - " + configuration.getProperty(PROXY_HOST) + ":" +
+                    configuration.getProperty(PROXY_PORT) + " given: " + given);
+        }
+        Response response = given
+                .accept(CONTENT_TYPE_APPLICATION_JSON)
+                .when().multiPart(file)
+                .post(request).then()
+                .extract().response();
+        return response.getStatusCode() == 200;
+    }
+
+    /**
+     * Creates a jira ticket, and returns jira id.
+     *
      * @param summary
      * @param description
      * @return
@@ -514,101 +674,11 @@ public class JIRAClient
         return jiraId;
     }
 
-    private String removeStopWordsFrom(String summary, String stopWordsList)
-    {
-        if (null == stopWordsList || stopWordsList.length() < 1)
-        {
-            return summary;
-        }
-        LOG.info("Stop words to be removed : " + stopWordsList + "\nFrom input: " + summary);
-        StringTokenizer stopWords = new StringTokenizer(stopWordsList, ",");
-        while (stopWords.hasMoreTokens())
-        {
-            String stopWord = stopWords.nextToken();
-            summary = summary.replaceAll(stopWord, " ").replaceAll("\\s+", " ").trim();
-        }
-        LOG.info("Output after stopwords removal: " + summary);
-        return summary;
-    }
-
-    private String truncateAfterStopWords(String summary, String truncateStopWords)
-    {
-        if (null == truncateStopWords || truncateStopWords.trim().length() < 1)
-        {
-            return summary;
-        }
-        LOG.info("Truncate after words: " + truncateStopWords + "\nFrom input: " + summary);
-        StringTokenizer stopWords = new StringTokenizer(truncateStopWords, ",");
-        while (stopWords.hasMoreTokens())
-        {
-            String stopWord = stopWords.nextToken();
-            int end = summary.indexOf(stopWord);
-            if (end > 0)
-            {
-                summary = summary.substring(0, end);
-            }
-        }
-        return summary;
-    }
-
-    private String attachFilesToIssue(String jiraId)
-    {
-        String attachments = System.getProperty(BUG_ATTACHMENTS, configuration.getProperty(BUG_ATTACHMENTS));
-        StringBuilder attachedFiles = new StringBuilder();
-        if (null != attachments)
-        {
-            StringTokenizer tokenizer = new StringTokenizer(attachments, ",");
-            while (tokenizer.hasMoreTokens())
-            {
-                String attach = tokenizer.nextToken();
-                try
-                {
-                    if (attachFileToIssue(jiraId, attach))
-                    {
-                        LOG.info("File " + attach + " attached to jira " + jiraId + " successfully!");
-                        attachedFiles.append(attach).append(",");
-                    }
-                } catch (Exception e)
-                {
-                    System.err.println("Error while attaching file " + attach + " : " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }
-        return attachedFiles.toString();
-    }
-
     /**
-     * @param jiraTicket
-     * @param fileToAttach
-     * @throws MalformedURLException
-     */
-    public boolean attachFileToIssue(String jiraTicket, String fileToAttach) throws MalformedURLException
-    {
-        URL request = new URL("https://" + configuration.getProperty(DEFECT_MGMT_HOST) +
-                configuration.getProperty(BUG_API) + "/" + jiraTicket + "/attachments");
-        File file = new File(fileToAttach);
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        RequestSpecification given = RestAssured.given();
-        Header header2 = new Header("X-Atlassian-Token", "nocheck");
-        given = given.header(authenticationHeader).and().header(header2);
-        if (null != configuration.getProperty(PROXY_HOST))
-        {
-            given = given.proxy(configuration.getProperty(PROXY_HOST), Integer.parseInt(configuration.getProperty(PROXY_PORT)));
-            LOG.info("Using proxy server - " + configuration.getProperty(PROXY_HOST) + ":" +
-                    configuration.getProperty(PROXY_PORT) + " given: " + given);
-        }
-        Response response = given
-                .accept(CONTENT_TYPE_APPLICATION_JSON)
-                .when().multiPart(file)
-                .post(request).then()
-                .extract().response();
-        return response.getStatusCode() == 200;
-    }
-
-    /**
-     * @param jiraTicket
-     * @param comment
+     * Adds a comment to the jira ticket
+     *
+     * @param jiraTicket - jira ticket id
+     * @param comment    - comment to add
      * @return
      * @throws MalformedURLException
      */
@@ -641,103 +711,6 @@ public class JIRAClient
     }
 
     /**
-     * @param summary
-     * @param description
-     * @param payloadTemplateFile
-     * @param overrideBugFields
-     * @return
-     */
-    private String preparePayload(String summary, String description,
-                                  String payloadTemplateFile, Map<String, Object> overrideBugFields)
-    {
-        Map<String, Object> bugMap = new HashMap<>();
-        bugMap.put("summary", configuration.getProperty(BUG_SUMMARY_PREFIX,
-                "[Automation Filed Bug]") + summary);
-        description = prepareBugDescriptionForBugCreation(description);
-        bugMap.put("description", description);
-        Set<Map.Entry<Object, Object>> entries = configuration.entrySet();
-        entries.forEach(each ->
-        {
-            bugMap.put(each.getKey().toString(), each.getValue().toString());
-        });
-        if (null != overrideBugFields && overrideBugFields.size() > 0)
-        {
-            bugMap.putAll(overrideBugFields);
-        }
-        // Override bugMap with system level/runtime configurations
-        bugMap.keySet().forEach(each ->
-        {
-            if (null != System.getProperty(each.toString()))
-            {
-                bugMap.put(each.toString(), System.getProperty(each.toString()));
-            }
-            LOG.info(each + "=" + bugMap.get(each.toString()));
-        });
-
-        boolean templateFileFound = new File(payloadTemplateFile).exists();
-        LOG.info("Bug body template found? = " + templateFileFound);
-        if (!templateFileFound)
-        {
-            System.err.println("Bug body template was not found, using default template, writing it to : " +
-                    payloadTemplateFile);
-            try
-            {
-                IOUtil.writeFile(payloadTemplateFile, defaultBugCreateTemplate, false);
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        Template template = velocityEngine.getTemplate(payloadTemplateFile, "UTF-8");
-        VelocityContext context = new VelocityContext();
-        context.put("bug", bugMap);
-        StringWriter writer = new StringWriter();
-        template.merge(context, writer);
-        String payload = writer.toString();
-        LOG.info("Create Issue Input data : " + payload);
-        return payload;
-    }
-
-    /**
-     * Prepares the description of bug body. By adding build url, a nice header, a note and
-     * excaptes html tags, json tags.
-     *
-     * @param description
-     * @return
-     */
-    private String prepareBugDescriptionForBugCreation(String description)
-    {
-        description = "*[Automation failed tests]*\n" +
-                "||Testcase failing|| Parameters||\n" +
-                description + "\n" +
-                System.getProperty(AUTO_CREATE_ADDITIONAL_DETAILS,
-                        configuration.getProperty(AUTO_CREATE_ADDITIONAL_DETAILS, "")) + "\n" +
-                "Build url: " + buildUrl;
-        description = description + "\n\n\n" + "Note: This bug is created automatically by Dolphin." +
-                " Please do not edit summary line of the bug.";
-        description = StringEscapeUtils.escapeHtml3(description);
-        description = StringEscapeUtils.escapeHtml4(description);
-        description = JSONObject.escape(description);
-        return description;
-    }
-
-    /*
-     *
-     */
-    private String getField(Object document, String fieldJsonPath)
-    {
-        String result = null;
-        try
-        {
-            result = JsonPath.read(document, fieldJsonPath);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    /**
      * Returns url to access a bug in front end.
      *
      * @param bugid
@@ -749,6 +722,35 @@ public class JIRAClient
                 "https://" + configuration.getProperty(DEFECT_MGMT_HOST)
                         + configuration.getProperty(BUG_BROWSE_URI) + bugid;
         return url;
+    }
+
+    public static void main(String[] args) throws IOException
+    {
+        JIRAClient jiraClient = new JIRAClient("resources/jiraclient.properties");
+        String bugId = jiraClient.createJiraTicket("test summary", "test description\n multi line", null);
+//        LOG.info("Bug raised " + jiraTicket);
+//        LOG.info(jiraClient.getBugsBySearchQueryRA("description~some bug").toString());
+//
+//    System.err.println("==============================test================================================");
+//    URL myURL = new URL("https://jira.intuit.com/rest/api/latest/search?jql=");
+//    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("qypprdproxy01.ie.intuit.net", 80 ));
+//    HttpURLConnection myURLConnection = (HttpURLConnection)myURL.openConnection(proxy );
+//    myURLConnection.setRequestProperty ( "Authorization", "Basic aWRlYV9hdXRvbWF0aW9uOnBhc3N3b3Jk" );
+//    myURLConnection.setRequestMethod("GET");
+//    myURLConnection.setRequestProperty("Content-Language", "en-US");
+//    myURLConnection.setUseCaches(false);
+//    myURLConnection.setDoInput(true);
+//    myURLConnection.setDoOutput(true);
+//
+//    myURLConnection.connect();
+//    InputStream content = (InputStream)  myURLConnection.getContent();
+//    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+//    String line = null;
+//    while ( ( line = reader.readLine() ) != null )
+//    {
+//      LOG.info(line);
+//    }
+        System.err.println("================================test==============================================");
     }
 }
 

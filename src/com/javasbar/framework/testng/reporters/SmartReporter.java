@@ -916,14 +916,6 @@ public class SmartReporter implements IReporter
         return historyLines;
     }
 
-    public static void main(String[] args) throws IOException
-    {
-//        JIRAClient client = new JIRAClient("");
-//        System.out.println(client.getBugByBugId("BLINK-437"));
-        String input = "{} Differences b/w kapila and kabini Account events";
-        System.out.println(input.replaceAll("[^a-zA-Z0-9\\s]", ""));
-    }
-
     public static int countSubstrings(String inputData, String searchString)
     {
         if (searchString.length() > inputData.length())
