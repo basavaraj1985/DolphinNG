@@ -1,5 +1,6 @@
-# Dolphin
-Test automation framework with smart reporting, html logging, jira integration.
+# DolphinNG
+The TestNG listeners, reporters with smart reporting, progress reporter, jira integration. This can be thought as TestNG++,
+library with advanced features as failure based reporting, red delta. These features are described in detail below.
 
 # How to use:
 
