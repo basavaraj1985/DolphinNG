@@ -1,0 +1,19 @@
+{
+  "fields": {
+    "project":
+    {
+      "key": "$bug.projectKey"
+    },
+    "summary": "$bug.summary",
+    "description": "$bug.description",
+    "issuetype":
+    {
+      "name": "Bug"
+    },
+    "components": [{"name": "COMPONENT_IN_JIRA" }],
+    "customfield_10302": { "id": "$bug.severity" }   ,
+    "customfield_10207": [{ "value": "$bug.environment" }],
+    "customfield_10502": { "value": "$bug.impact" },
+    "versions": [{ "name": "$bug.version"}]
+  }
+}

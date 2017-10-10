@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="DolphinTests" parallel="tests" thread-count="10" >
+	<parameter name="configFile" value="config/config.properties" />
+	
+	<listeners>
+		<listener class-name="com.javasbar.framework.testng.reporters.SmartReporter" />
+		<listener class-name="com.javasbar.framework.testng.reporters.ProgressReporter" />
+	    <listener class-name="com.javasbar.framework.testng.reporters.TimeoutRetryAnalyzer" />
+	    <listener class-name="com.javasbar.framework.testng.reporters.EnvAwareRetryAnalyzer" />
+	    <listener class-name="com.javasbar.framework.testng.reporters.RuleBasedStatusModifier" />
+		<listener class-name="org.testng.reporters.EmailableReporter" />
+	</listeners> 
+</suite>
