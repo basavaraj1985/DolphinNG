@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/basavaraj1985/DolphinNG.svg?branch=master)](https://travis-ci.org/basavaraj1985/DolphinNG)
+
 # DolphinNG
 The TestNG listeners, reporters with smart reporting, progress reporter, jira integration. This can be thought as TestNG++,
 library with advanced features as failure based reporting, red delta. These features are described in detail below.
