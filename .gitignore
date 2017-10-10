@@ -1,3 +1,14 @@
+# ide project files
+###################
+*.iml
+*.classpath
+*.project
+*.settings/
+target/
+Reports/
+.idea/
+test-output/
+
 # Compiled class file
 *.class
 
