@@ -12,7 +12,7 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-	<groupId>com.javasbar</groupId>
+	<groupId>com.github.basavaraj1985</groupId>
 	<artifactId>DolphinNG</artifactId>
 	<version>1.0.0</version>
 
