@@ -51,7 +51,8 @@ public class SmartReporter implements IReporter
     public SmartReporter()
     {
         super();
-        LOG.info("Dolphin: SmartReporter() constructor");
+        LOG.info("DolphinNG: SmartReporter() constructor");
+        System.out.println("~~~~~~~> DolphinNG: SmartReporter() constructor, your test suite is super powered! <~~~~~~~~~");
         String prevReport = System.getProperty(previousStaticReportKey, null);
         logLinkFile = System.getProperty(LOG_LINK);
         buglink = System.getProperty("buglink", "");
@@ -88,7 +89,7 @@ public class SmartReporter implements IReporter
 
         if (null != buglink)
         {
-            LOG.info("Dolphin: Jira bug linking enabled!");
+            LOG.info("DolphinNG: Jira bug linking enabled!");
             if (buglink.equalsIgnoreCase("true"))
             {
                 jira = new JIRAClient(buglinkConfig);
@@ -151,7 +152,7 @@ public class SmartReporter implements IReporter
             ve.init(resourceLoadingConfigProps);
             LOG.info("Using template : " + templateValue);
             Template template = ve.getTemplate(templateValue);
-            LOG.info("Dolphin: using template - " + template.getName());
+            LOG.info("DolphinNG: using template - " + template.getName());
             VelocityContext context = new VelocityContext();
             Properties reportedProps = new Properties();
             reportedProps.load(new FileInputStream(report));
@@ -174,7 +175,8 @@ public class SmartReporter implements IReporter
         } catch (Exception e)
         {
             e.printStackTrace();
-            System.err.println("Dolphin: Velocity exception while generating report from template!");
+            System.err.println("DolphinNG: Velocity exception while generating report from template!");
+            LOG.warn(e);
         }
         LOG.info("====================================================================================");
         LOG.info("Smart Report: " + finalReport);

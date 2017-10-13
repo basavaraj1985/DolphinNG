@@ -332,7 +332,7 @@ public class JIRAClient
                 System.getProperty(AUTO_CREATE_ADDITIONAL_DETAILS,
                         configuration.getProperty(AUTO_CREATE_ADDITIONAL_DETAILS, "")) + "\n" +
                 "Build url: " + buildUrl;
-        description = description + "\n\n\n" + "Note: This bug is created automatically by Dolphin." +
+        description = description + "\n\n\n" + "Note: This bug is created automatically by DolphinNG." +
                 " Please do not edit summary line of the bug.";
         description = StringEscapeUtils.escapeHtml3(description);
         description = StringEscapeUtils.escapeHtml4(description);
@@ -687,7 +687,7 @@ public class JIRAClient
         URL request = new URL("https://" + configuration.getProperty(DEFECT_MGMT_HOST) +
                 configuration.getProperty(BUG_API) + "/" + jiraTicket + "/comment");
         comment = comment + "\n\n\n" + "Test Run URL: " + buildUrl;
-        comment = comment + "\n" + "Note: This comment is created automatically by Dolphin.";
+        comment = comment + "\n" + "Note: This comment is created automatically by DolphinNG.";
         comment = StringEscapeUtils.escapeHtml3(comment);
         comment = StringEscapeUtils.escapeHtml4(comment);
         comment = JSONObject.escape(comment);
