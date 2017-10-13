@@ -2,16 +2,22 @@
 
 # DolphinNG
 The TestNG listeners, reporters with smart reporting, progress reporter, jira integration. This can be thought as TestNG++,
-library with advanced features as failure based reporting, red delta. These features are described in detail below.
+library with advanced features as failure based reporting, red delta.
+-	Red delta : new failures, compared to previous run. These failures are separated and shown as Red delta in the smart report. These fails indicate regression failure.
+- 	Green delta: new passes, compared to previous run. These are separated and shown as Green delta in the smart report.
+These results indicate a regression pass (usually because a fix made).
+- 	Stagnant failures: The test fails that failed in the previous run also.
+-	Failure Based Report (FBR): test fails with same/similar fail reasons are clubbed together and reported with test fail count.
+-	JIRA integration: The report will have a ticket created/queried from JIRA for every failure. The FBR will have the mapping between failure reason to jira ticket.
 
 # How to use:
 
 -	Maven dependency:
 	```
 	<dependency>
-		<groupId>com.javasbar.framework</groupId>
+		<groupId>com.github.basavaraj1985</groupId>
 		<artifactId>DolphinNG</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.1.0</version>
 	</dependency>
 	```
 
