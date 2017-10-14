@@ -33,7 +33,7 @@
 
 	<properties>
 		<testng.version>6.11</testng.version>
-		<log4j.version>2.9.2</log4j.version>
+		<log4j.version>2.8.2</log4j.version>
 		<source.version>1.8</source.version>
 		<target.version>1.8</target.version>
 		<maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
