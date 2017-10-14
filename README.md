@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/basavaraj1985/DolphinNG.svg?branch=master)](https://travis-ci.org/basavaraj1985/DolphinNG)
+[![Build Status](https://travis-ci.org/basavaraj1985/DolphinNG.svg?branch=master)](https://travis-ci.org/basavaraj1985/DolphinNG)[![GitHub release](https://img.shields.io/badge/DolphinNG-Releases-blue.svg)](https://github.com/basavaraj1985/DolphinNG/releases)
 
 # DolphinNG
 The TestNG listeners, reporters with smart reporting, progress reporter, jira integration. This can be thought as TestNG++,
