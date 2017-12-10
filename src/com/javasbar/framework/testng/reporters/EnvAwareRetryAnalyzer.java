@@ -14,6 +14,9 @@ import com.javasbar.framework.lib.common.NetworkUtil;
 public class EnvAwareRetryAnalyzer implements IRetryAnalyzer, ITestNGListener
 {
     private static final Logger LOG = LogManager.getLogger(EnvAwareRetryAnalyzer.class);
+    private static final String MAX_RETRY_COUNT = "maxRetryCount";
+    private static final String RETRY_WAIT_SECONDS = "retryWaitSeconds";
+    private static final String BASE_URL = "baseUrl";
     private int retryCount = 0;
     private int maxRetryCount;
     private int retryWaitSeconds;
@@ -23,8 +26,11 @@ public class EnvAwareRetryAnalyzer implements IRetryAnalyzer, ITestNGListener
      */
     public boolean retry(ITestResult testResult)
     {
-        String maxRetryStr = (String) testResult.getTestContext().getAttribute("maxRetryCount");
-        String maxRetryWaitSecondsStr = (String) testResult.getTestContext().getAttribute("retryWaitSeconds");
+        String maxRetryStr = System.getProperty(MAX_RETRY_COUNT,
+                (String) testResult.getTestContext().getAttribute(MAX_RETRY_COUNT));
+        String maxRetryWaitSecondsStr = System.getProperty(RETRY_WAIT_SECONDS,
+                (String) testResult.getTestContext().getAttribute(RETRY_WAIT_SECONDS));
+        String url = System.getProperty(BASE_URL, (String) testResult.getTestContext().getAttribute(BASE_URL));
         if (null != maxRetryStr)
         {
             try
@@ -51,7 +57,6 @@ public class EnvAwareRetryAnalyzer implements IRetryAnalyzer, ITestNGListener
         LOG.info("@EnvAwareRetryAnalyzer retry");
         if (!testResult.isSuccess() && (retryCount++ < maxRetryCount))
         {
-            String url = (String) testResult.getTestContext().getAttribute("baseUrl");
             if (null == url)
             {
                 System.getProperty("baseUrl", "http://google.com");
