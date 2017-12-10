@@ -43,7 +43,6 @@ public class RuleBasedStatusModifier implements ITestListener
 
     public RuleBasedStatusModifier()
     {
-        LOG.debug("RuleBasedStatusModifier initialization!");
         LOG.info("RuleBasedStatusModifier initialization!");
         logUsage();
         try
