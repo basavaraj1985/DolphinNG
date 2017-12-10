@@ -10,7 +10,7 @@
     {
       "name": "Bug"
     },
-    "components": [{"name": "COMPONENT_IN_JIRA" }],
+    "components": [{"name": "$bug.component" }],
     "customfield_10302": { "id": "$bug.severity" }   ,
     "customfield_10207": [{ "value": "$bug.environment" }],
     "customfield_10502": { "value": "$bug.impact" },
