@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/basavaraj1985/DolphinNG.svg?branch=master)](https://travis-ci.org/basavaraj1985/DolphinNG)[![GitHub release](https://img.shields.io/badge/DolphinNG-Releases-blue.svg)](https://github.com/basavaraj1985/DolphinNG/releases)[![Maven Central](https://img.shields.io/badge/Maven%20Central-Releases-green.svg)](https://mvnrepository.com/artifact/com.github.basavaraj1985/DolphinNG)
 
 # DolphinNG
+##### TestNG add on for smarter, simpler reports and analytics!
 The TestNG listeners, reporters with smart reporting, progress reporter, jira integration. This can be thought as TestNG++,
 library with advanced features as failure based reporting, red delta.
 -	Red delta : new failures, compared to previous run. These failures are separated and shown as Red delta in the smart report. These fails indicate regression failure.
