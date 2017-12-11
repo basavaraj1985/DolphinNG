@@ -903,7 +903,6 @@ public class SmartReporter implements IReporter
                         "totalFailedMethods, totalSkippedMehtods, totalPassedCount, totalFailedCount," +
                         " totalSkippedCount, redDeltalCount, greenDeltaCount, redMethodDeltaCount, " +
                         "greenMethodDeltaCount");
-                hbw.write("\n");
                 hbw.write(System.getProperty("line.separator"));
                 hbw.flush();
                 hbw.close();
