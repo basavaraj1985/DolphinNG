@@ -58,7 +58,7 @@ public class RuleBasedStatusModifier implements ITestListener
     private void logUsage()
     {
         LOG.info("This RuleBasedStatusModifier can be used as follows: ");
-        LOG.info("By run time config -DskipKnownFailures=know failure1~known failure two~etc -Drmd=~");
+        LOG.info("By run time config -DskipFor=know failure1~known failure two~etc -Drmd=~");
         LOG.info("#rmd = <Rulebased Modifier Delimiter>, Default is ~");
         LOG.info("Configuration can be provided in configuration file. " +
                  "Config file default location config/resultModifier.properties. Can be overriden using -DruleModifierConfig");
@@ -79,7 +79,8 @@ public class RuleBasedStatusModifier implements ITestListener
         {
             config.load(new FileReader(new File(configFile)));
             LOG.info("Loaded " + configFile + " for RulesBasedStatusModifier!");
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
             LOG.error("Failed loading " + configFile + " for RulesBasedStatusModifier", e);
