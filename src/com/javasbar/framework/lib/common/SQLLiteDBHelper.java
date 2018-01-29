@@ -6,12 +6,11 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Scanner;
 
 public class SQLLiteDBHelper
 {
-    public static void main(String[] args) throws ClassNotFoundException
+    public static void __main(String[] args) throws ClassNotFoundException
     {
         // load the sqlite-JDBC driver using the current class loader
         Class.forName("org.sqlite.JDBC");
@@ -57,7 +56,7 @@ public class SQLLiteDBHelper
         }
     }
 
-    public static void _main(String[] args) throws FileNotFoundException, ParseException, SQLException, ClassNotFoundException{
+    public static void main(String[] args) throws FileNotFoundException, ParseException, SQLException, ClassNotFoundException{
         Connection c = null;
         Statement stmt = null;
         try {
@@ -67,13 +66,24 @@ public class SQLLiteDBHelper
             String drop_sql = "DROP TABLE IF EXISTS MyTable";
             stmt.executeUpdate(drop_sql);
             String create_sql = "CREATE TABLE MyTable " +
-                    "(VAR1     CHAR(50) NOT NULL, " +
-                    "VAR2 CHAR(10) PRIMARY KEY NOT NULL," +
-                    " VAR3   TEXT   NOT NULL, " +
-                    " VAR4      TEXT   NOT NULL )";
+                   "(" +
+                    "BuildNo VARCHAR NOT NULL," +
+                    " totalRunTCcount VARCHAR NOT NULL," +
+                    " totalRunTestMethodCount VARCHAR NOT NULL," +
+                    " totalPassedMethods VARCHAR NOT NULL," +
+                    " totalFailedMethods VARCHAR NOT NULL," +
+                    " totalSkippedMehtods VARCHAR NOT NULL," +
+                    " totalPassedCount VARCHAR NOT NULL," +
+                    " totalFailedCount VARCHAR NOT NULL," +
+                    " totalSkippedCount VARCHAR NOT NULL," +
+                    " redDeltalCount VARCHAR NOT NULL," +
+                    " greenDeltaCount VARCHAR NOT NULL," +
+                    " redMethodDeltaCount VARCHAR NOT NULL," +
+                    " greenMethodDeltaCount VARCHAR NOT NULL" +
+                    " )";
 
             stmt.executeUpdate(create_sql);
-            File premFile = new File("MyFile.csv");
+            File premFile = new File("sample.csv");
             DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
             Scanner scanner = new Scanner(premFile);
             scanner.useDelimiter(",");
@@ -82,16 +92,21 @@ public class SQLLiteDBHelper
             while (i < count){
                 String myRecord = scanner.nextLine();
                 String[] cols = myRecord.split(",");
-                String var1 = cols[0];
-                String var2 = cols[1];
-                Date var3 = df.parse(cols[2]);
-                Date var4 = df.parse(cols[3]);
 
                 String query = "INSERT INTO MyTable VALUES (" +
-                        "'" + var1 + "', " +
-                        "'" + var2 + "', " +
-                        "'" + var3 +  "', " +
-                        "'" + var4 + "')";
+                        "'" + cols[0] + "', " +
+                        "'" + cols[1] + "', " +
+                        "'" + cols[2] +  "', " +
+                        "'" + cols[3] +  "', " +
+                        "'" + cols[4] +  "', " +
+                        "'" + cols[5] +  "', " +
+                        "'" + cols[6] +  "', " +
+                        "'" + cols[7] +  "', " +
+                        "'" + cols[8] +  "', " +
+                        "'" + cols[9] +  "', " +
+                        "'" + cols[10] +  "', " +
+                        "'" + cols[11] +  "', " +
+                        "'" + cols[12] + "')";
                 stmt.addBatch(query);
                 i++;
             }
