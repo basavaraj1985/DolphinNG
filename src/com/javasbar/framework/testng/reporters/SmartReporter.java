@@ -4,6 +4,7 @@ import com.javasbar.framework.lib.common.Bug;
 import com.javasbar.framework.lib.common.IOUtil;
 import com.javasbar.framework.lib.common.JIRAClient;
 import com.javasbar.framework.lib.common.StringUtil;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
@@ -40,11 +41,11 @@ public class SmartReporter implements IReporter
     private static String persistedHistory = "history.csv";
     private static String prepend = "";
     private static String intl = "";
-    private static String previousStaticReportKey = "prev";
+    private static String PREV_STATIC_REPORT_KEY = "prev";
     private static File previous = null;
 
     private String logLinkFile;
-    private String buglink;
+    private Boolean buglink;
     private String buglinkConfig;
     private JIRAClient jira;
 
@@ -53,9 +54,9 @@ public class SmartReporter implements IReporter
         super();
         LOG.info("DolphinNG: SmartReporter() constructor");
         System.out.println("~~~~~~~> DolphinNG: SmartReporter() constructor, your test suite is super powered! <~~~~~~~~~");
-        String prevReport = System.getProperty(previousStaticReportKey, null);
+        String prevReport = System.getProperty(PREV_STATIC_REPORT_KEY, null);
         logLinkFile = System.getProperty(LOG_LINK);
-        buglink = System.getProperty("buglink", "");
+        buglink = Boolean.parseBoolean(System.getProperty("buglink", "false"));
         buglinkConfig = System.getProperty("buglink.config", "");
         if (prevReport != null)
         {
@@ -72,7 +73,7 @@ public class SmartReporter implements IReporter
 
         if (logLinkFile != null)
         {
-            LOG.info("SUCCESS : Log deep linking to smart report considered!");
+            LOG.info("SUCCESS : Log deep linking to smart report    considered!");
             try
             {
                 URL url = new URL(logLinkFile);
@@ -87,15 +88,11 @@ public class SmartReporter implements IReporter
             }
         }
 
-        if (null != buglink)
+        if (buglink)
         {
             LOG.info("DolphinNG: Jira bug linking enabled!");
-            if (buglink.equalsIgnoreCase("true"))
-            {
-                jira = new JIRAClient(buglinkConfig);
-            }
+            jira = new JIRAClient(buglinkConfig);
         }
-
     }
 
     public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites,
@@ -356,12 +353,13 @@ public class SmartReporter implements IReporter
         if (null == previous)
         {
             buf.append("#Threshold failures NOT taken into account - prev=" +
-                    System.getProperty(previousStaticReportKey, null)).append("\n");
+                    System.getProperty(PREV_STATIC_REPORT_KEY, null)).append("\n");
             previous = new File(outputDirectory + "/" + fileName);
-        } else
+        }
+        else
         {
             buf.append("#Threshold failures taken into account - prev=" +
-                    System.getProperty(previousStaticReportKey, null)).append("\n");
+                    System.getProperty(PREV_STATIC_REPORT_KEY, null)).append("\n");
         }
 
         buf.append("#Previous report expected : " + previous.getAbsolutePath() +
@@ -370,11 +368,10 @@ public class SmartReporter implements IReporter
         {
             buf.append("buildNumber=1").append("\n");
             buf.append("#No previous report!").append("\n");
-            return;
+//            return;
         }
 
         Properties previousProperties = IOUtil.loadFileIntoProperties(previous.getAbsolutePath());
-
         if (prevBuildNumber == 0)
         {
             prevBuildNumber = Integer.valueOf(previousProperties.getProperty("buildNumber", "0").trim()).intValue();
@@ -382,10 +379,10 @@ public class SmartReporter implements IReporter
         buf.append("buildNumber=" + (prevBuildNumber + 1)).append("\n");
 
         int totalCountDelta = 0, methodCountDelta = 0;
-        String pTotalCount = previousProperties.getProperty("total");
+        String pTotalCount = previousProperties.getProperty("total", "0");
         totalCountDelta = total - Integer.valueOf(pTotalCount);
 
-        String pMethodTotalCount = previousProperties.getProperty("totalMethodCount");
+        String pMethodTotalCount = previousProperties.getProperty("totalMethodCount", "0");
         methodCountDelta = totalNumberOfMethods - Integer.valueOf(pMethodTotalCount);
 
         buf.append("TotalCountDelta=" + totalCountDelta).append("\n");
@@ -393,7 +390,7 @@ public class SmartReporter implements IReporter
 
         int redDeltaCount = 0, greenDeltaCount = 0;
         //1. Calculate Red Delta count
-        String pFailCount = previousProperties.getProperty("failed");
+        String pFailCount = previousProperties.getProperty("failed", "0");
         redDeltaCount = failed - Integer.valueOf(pFailCount);
         if (redDeltaCount < 0)
         {
@@ -402,7 +399,7 @@ public class SmartReporter implements IReporter
         }
 
         //2. Calculate Green Delta count
-        String pPassCount = previousProperties.getProperty("passed");
+        String pPassCount = previousProperties.getProperty("passed", "0");
         greenDeltaCount = passed - Integer.valueOf(pPassCount);
         if (greenDeltaCount < 0)
         {
@@ -413,7 +410,7 @@ public class SmartReporter implements IReporter
 
         //3. Calculate Red Delta method count
         int redMethodDeltaCount = 0, greenMethodDeltaCount = 0;
-        String pFailMethodCount = previousProperties.getProperty("failedMethods");
+        String pFailMethodCount = previousProperties.getProperty("failedMethods", "0");
 //		redMethodDeltaCount = totalFailedMethods - Integer.valueOf(pFailMethodCount);
 //		if ( redMethodDeltaCount < 0 )
 //		{
@@ -422,7 +419,7 @@ public class SmartReporter implements IReporter
 //		}
 
         //4. Calculate Green Delta method count
-        String pPassMethodCount = previousProperties.getProperty("passedMethods");
+        String pPassMethodCount = previousProperties.getProperty("passedMethods", "0");
         greenMethodDeltaCount = totalPassedMethods - Integer.valueOf(pPassMethodCount);
         if (greenMethodDeltaCount < 0)
         {
@@ -432,7 +429,7 @@ public class SmartReporter implements IReporter
         //5. Derive Red Delta methods
         StringBuffer redDeltaMethodList = new StringBuffer();
         redDeltaMethodList.append("<table border=\"2\" cellspacing=\"0\" cellpadding=\"2\" class=\"param\" width=\"100%\">");
-        if (buglink.equalsIgnoreCase("true"))
+        if (buglink)
         {
             redDeltaMethodList.append("<tr> <th bgcolor=\"red\" colspan=\"6\">Red Delta [PASS-to-FAIL]  Count : " +
                     "$redMethodDeltaCount" + " </th></tr>");
@@ -444,7 +441,7 @@ public class SmartReporter implements IReporter
         redDeltaMethodList.append("<tr bgcolor=\"red\">");
         redDeltaMethodList.append("<th>Test Case</th>");
         redDeltaMethodList.append("<th>Parameters</th>");
-        if (buglink.equalsIgnoreCase("true"))
+        if (buglink)
         {
             redDeltaMethodList.append("<th>Bug</th>");
             redDeltaMethodList.append("<th>BugStatus</th>");
@@ -455,7 +452,7 @@ public class SmartReporter implements IReporter
 
         StringBuffer stagnantFailureList = new StringBuffer();
         stagnantFailureList.append("<table border=\"2\" cellspacing=\"0\" cellpadding=\"2\" class=\"param\" width=\"100%\">");
-        if (buglink.equalsIgnoreCase("true"))
+        if (buglink)
         {
             stagnantFailureList.append("<tr> <th bgcolor=\"red\" colspan=\"6\">Stagnant failures [FAIL-remained-FAIL]</th></tr>");
         } else
@@ -465,7 +462,7 @@ public class SmartReporter implements IReporter
         stagnantFailureList.append("<tr bgcolor=\"red\">");
         stagnantFailureList.append("<th>Test Case</th>");
         stagnantFailureList.append("<th>Parameters</th>");
-        if (buglink.equalsIgnoreCase("true"))
+        if (buglink)
         {
             stagnantFailureList.append("<th>Bug</th>");
             stagnantFailureList.append("<th>BugStatus</th>");
@@ -476,7 +473,7 @@ public class SmartReporter implements IReporter
 
         StringBuffer failBasedReportingBuff = new StringBuffer();
         failBasedReportingBuff.append("<table border=\"2\" cellspacing=\"0\" cellpadding=\"2\" class=\"param\" width=\"100%\">");
-        if (buglink.equalsIgnoreCase("true"))
+        if (buglink)
         {
             failBasedReportingBuff.append("<tr> <th bgcolor=\"#F74040\" colspan=\"7\">Failure Based report Count :" +
                     failReasonBasedGrouping.size() + " </th></tr>");
@@ -489,7 +486,7 @@ public class SmartReporter implements IReporter
         failBasedReportingBuff.append("<th>Fail Reason</th>");
         failBasedReportingBuff.append("<th>Fail Cases</th>");
         failBasedReportingBuff.append("<th>Fail Count</th>");
-        if (buglink.equalsIgnoreCase("true"))
+        if (buglink)
         {
             failBasedReportingBuff.append("<th>Bug</th>");
             failBasedReportingBuff.append("<th>BugStatus</th>");
@@ -539,7 +536,7 @@ public class SmartReporter implements IReporter
             failBasedReportingBuff.append("</td>");
             failBasedReportingBuff.append("<td>").append(numberOfFailsForThisReason).append("</td>");
 
-            if (buglink.equalsIgnoreCase("true"))
+            if (buglink)
             {
                 try
                 {
@@ -627,7 +624,7 @@ public class SmartReporter implements IReporter
                     redDeltaMethodList.append("<td>").append("-").append("</td>");
                 }
 
-                if (buglink.equalsIgnoreCase("true"))
+                if (buglink)
                 {
                     try
                     {
@@ -687,7 +684,7 @@ public class SmartReporter implements IReporter
                 {
                     stagnantFailureList.append("<td>").append("-").append("</td>");
                 }
-                if (buglink.equalsIgnoreCase("true"))
+                if (buglink)
                 {
                     try
                     {
@@ -906,7 +903,6 @@ public class SmartReporter implements IReporter
                         "totalFailedMethods, totalSkippedMehtods, totalPassedCount, totalFailedCount," +
                         " totalSkippedCount, redDeltalCount, greenDeltaCount, redMethodDeltaCount, " +
                         "greenMethodDeltaCount");
-                hbw.write("\n");
                 hbw.write(System.getProperty("line.separator"));
                 hbw.flush();
                 hbw.close();

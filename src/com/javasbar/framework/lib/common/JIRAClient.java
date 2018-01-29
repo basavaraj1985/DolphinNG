@@ -152,6 +152,11 @@ public class JIRAClient
         return props;
     }
 
+    /**
+     *
+     * @param stream
+     * @return
+     */
     public static Properties loadInputStreamIntoProperties(InputStream stream)
     {
         Properties props = new Properties();
@@ -166,6 +171,10 @@ public class JIRAClient
         return props;
     }
 
+    /**
+     *
+     * @param props
+     */
     private void initializeClient(Properties props)
     {
         if (null == props || props.size() == 0)
@@ -195,6 +204,12 @@ public class JIRAClient
         velocityEngine.setProperty("output.encoding", "UTF-8");
     }
 
+    /**
+     * Remove stopwords from given string
+     * @param summary
+     * @param stopWordsList
+     * @return
+     */
     private String removeStopWordsFrom(String summary, String stopWordsList)
     {
         if (null == stopWordsList || stopWordsList.length() < 1)
@@ -212,6 +227,12 @@ public class JIRAClient
         return summary;
     }
 
+    /**
+     * truncate given string after occurrence of any/all of the given truncate stop words
+     * @param summary
+     * @param truncateStopWords
+     * @return
+     */
     private String truncateAfterStopWords(String summary, String truncateStopWords)
     {
         if (null == truncateStopWords || truncateStopWords.trim().length() < 1)
@@ -232,6 +253,11 @@ public class JIRAClient
         return summary;
     }
 
+    /**
+     * Attach configured files to given jiraId
+     * @param jiraId
+     * @return
+     */
     private String attachFilesToIssue(String jiraId)
     {
         String attachments = System.getProperty(BUG_ATTACHMENTS, configuration.getProperty(BUG_ATTACHMENTS));
