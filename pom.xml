@@ -109,11 +109,14 @@
 			<artifactId>rest-assured</artifactId>
 			<version>${restAssured.version}</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.derby/derby -->
 		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.7.2</version>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.14.1.0</version>
+			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
