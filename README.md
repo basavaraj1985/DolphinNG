@@ -32,20 +32,20 @@ These results indicate a regression pass (usually because a fix made).
 		<listener class-name="com.javasbar.framework.testng.reporters.SmartReporter" />
 	</listeners>
 	```
-	Please note that if you are using JIRA auto bug create on test failure feature, the order of listeners in testng.xml matters. Put the SmartReporter at the end.
 
--	If you want to tweak the report format, you could do so. Take [this template](https://github.com/basavaraj1985/DolphinNG/blob/master/resources/report.vm "Template") and modify as per your needs
+
+-	If you want to tweak the report format, you could do so. Take [__**this template**__](https://github.com/basavaraj1985/DolphinNG/blob/master/resources/report.vm "Template") and modify as per your needs
 	and then provide the path to the template as
 	```
 		-Dsmart.report.template=path/to/your/templatefile/template.vm
 	```
 -	To enable JIRA bug linking
-	```)
+	```
 		-Dbuglink=true
 		-Dbuglink.config=jiraclient.properties
 	```
 	Providing buglink.config is optional, default properties will be taken if not provided. Configuration file to be provided with values,
-	[use this file](https://github.com/basavaraj1985/DolphinNG/blob/master/resources/jiraclient.properties).
+	[__**use this file**__](https://github.com/basavaraj1985/DolphinNG/blob/master/resources/jiraclient.properties).
 
 -	If you want to create bugs automatically for test failures, use
     ```
@@ -53,7 +53,7 @@ These results indicate a regression pass (usually because a fix made).
     ```
     either in jiraclient.properties or runtime property setting.
     Your JIRA project might have different mandatory fields, custom fields. It is important to make sure that the bug creation request has proper body.
-    If default does not work, then please take [this file](https://github.com/DolphinNG/blob/master/resources/jiracreateTemplate.vm) and edit
+    If default does not work, then please take [this file](https://github.com/basavaraj1985/DolphinNG/blob/master/resources/jiracreateTemplate.vm) and edit
     according to your needs. And then provide this filepath as system property:
 	```
 	-Dbug.create.body=resources/jiracreateTemplate.vm
